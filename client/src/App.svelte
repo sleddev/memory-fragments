@@ -36,7 +36,3 @@ import { to_number } from 'svelte/internal';
 {:else}
 <Login />
 {/if}
-
-<style>
-  
-</style>

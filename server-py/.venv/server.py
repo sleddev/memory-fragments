@@ -1,9 +1,13 @@
+from json import JSONEncoder
 from fastapi import FastAPI, HTTPException
+from  fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import base64
 import os
 from dotenv import load_dotenv
+from spotifydl import login_from_stored, check_premium, download_track
+from librespot.audio.decoders import AudioQuality
 
 app = FastAPI()
 app.add_middleware(
@@ -58,3 +62,17 @@ async def refresh(refresh_token):
     if res.status_code != 200:
         raise HTTPException(status_code=res.status_code, detail= res_json)
     return res_json
+
+@app.get('/download/track')
+async def download(track_id):
+    session = login_from_stored()
+
+    if check_premium(session):
+        quality = AudioQuality.VERY_HIGH
+    else:
+        quality = AudioQuality.HIGH
+
+    filename = download_track(track_id, session, quality)
+    res = {"message": "success"}
+    return FileResponse(filename)
+    

@@ -37,6 +37,12 @@
     })
     return ''
   }
+  function switchLink() {
+    previewURL = 'http://localhost:8000/download/track?track_id=' + track.id
+  }
+
+  onMount(() => {
+  })
 
   
 </script>
@@ -58,9 +64,13 @@
   <div id="separator"></div>
   <div id="details">
     {#if previewURL}
-    <audio bind:this={player} bind:paused on:ended="{() => audioEnded()}" src={previewURL}></audio>
+    <audio crossorigin="anonymous" bind:this={player} bind:paused on:ended="{() => audioEnded()}" src={previewURL}></audio>
     {/if}
-    <div id="name-container">{#if track.explicit}<div id="explicit">E</div>{/if}<div id="name">{track.name}</div></div>
+    <div id="name-container">
+      {#if track.explicit}<div id="explicit">E</div>{/if}
+      <div id="name">{track.name}</div>
+      <button id="download" on:click|stopPropagation="{() => switchLink()}"></button>
+    </div>
     <div id="artist">{track.artists[0].name}</div>
     <div id="duration">{track.durationFormatted}</div>
   </div>
@@ -165,6 +175,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  #download {
+    height: 1em;
+    padding: 0.5em;
+    align-self: center;
+    background-color: #777;
+    position: absolute;
+    right: 0;
   }
 
 </style>

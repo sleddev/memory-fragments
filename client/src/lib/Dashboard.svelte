@@ -4,6 +4,7 @@
   import { onMount } from 'svelte'
   import type { Track } from "spotify-web-api-ts/types/types/SpotifyObjects";
   import TestResult from "./TestResult.svelte";
+  import WebPlayback from "./WebPlayback.svelte";
 
 	export let accessToken: string
 	export let refreshToken: string
@@ -56,6 +57,7 @@
     <h1>MF</h1>
   </nav>
   <main>
+    <WebPlayback {accessToken} />
     <TestResult accessToken={accessToken} />
   </main>
 </div>
