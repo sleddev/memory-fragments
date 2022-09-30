@@ -1,6 +1,0 @@
-*.env
-__pycache__
-Lib
-share/man
-music
-credentials.json
