@@ -1,0 +1,9 @@
+*.env
+__pycache__
+Lib
+Include
+Scripts
+pyvenv.cfg
+share/man
+music
+credentials.json

@@ -11,7 +11,9 @@ Requirements:
 3. npm installed on your system
 ### Server
 
-from the `server-py` directory, run `python setup.py`, and complete the setup.
+(optional) if you want to use virtualenv: from the repository's root directory run `python -m venv server-py`, then [activate the virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments)
+
+from the `server-py` directory, run `sudo python setup.py`, and complete the setup.
 
 Then run `uvicorn server:app` to start the backend server
 

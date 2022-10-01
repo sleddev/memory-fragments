@@ -7,3 +7,4 @@ appdirs
 click
 uvicorn
 fastapi
+python-dotenv
