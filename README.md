@@ -13,9 +13,9 @@ Requirements:
 
 (optional) if you want to use virtualenv: from the repository's root directory run `python -m venv server-py`, then [activate the virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments)
 
-from the `server-py` directory, run `sudo python setup.py`, and complete the setup.
+from the `server-py` directory, run `python setup.py`, and complete the setup. (If you get errors, try running it as sudo)
 
-Then run `uvicorn server:app` to start the backend server
+Then run `python -m uvicorn server:app` to start the backend server
 
 You also need to add `http://localhost:5173` to the Redirect URIs of your Spotify app at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/applications)
 
