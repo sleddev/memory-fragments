@@ -1,10 +1,11 @@
 <script lang="ts">
   import { to_number } from "svelte/internal";
-  import { SpotifyWebApi } from "spotify-web-api-ts"
   import { onMount } from 'svelte'
-  import type { Track } from "spotify-web-api-ts/types/types/SpotifyObjects";
   import TestResult from "./TestResult.svelte";
-  import WebPlayback from "./WebPlayback.svelte";
+  import UniversalPlayer from "./UniversalPlayer.svelte";
+  import TrackCard from "./TrackCard.svelte";
+  import type { Track } from "./spotify/data/Track";
+    import { SpotifyApi } from "./spotify/SpotifyApi";
 
 	export let accessToken: string
 	export let refreshToken: string
@@ -12,6 +13,8 @@
   let expiresAt = to_number(expiresAtRaw)
 
   let results;
+  let player: UniversalPlayer
+  let testTrack: Track
 
 	function shouldRefresh(): boolean {
 	  return (
@@ -41,13 +44,10 @@
     })
   }
 
-  onMount(function () {
-    let spotify = new SpotifyWebApi({ accessToken: accessToken})
-    results = spotify.search.searchTracks('wolf', { market: 'HU' }).then((response) => {
-      let array = new Array<Track>
-      response.items.forEach(track => { array.push(track) })
-      return array
-    })
+  onMount(async function () {
+    let spotify = new SpotifyApi(accessToken)
+    testTrack = await spotify.tracks.getTrack('2gGdO0zLa9W8ce1Ig0BzFK')
+    player.setTrack(testTrack, true)
   })
   
 	
@@ -59,6 +59,7 @@
   <main>
     <!-- <WebPlayback {accessToken} /> -->
     <TestResult accessToken={accessToken} />
+    <UniversalPlayer bind:this={player} {accessToken} />
   </main>
 </div>
 
