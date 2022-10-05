@@ -16,6 +16,9 @@
   let player: UniversalPlayer
   let testTrack: Track
 
+  const baseURL = window.location.protocol + '//' + window.location.host + '/'
+  const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu67.gitpod.io/'
+
 	function shouldRefresh(): boolean {
 	  return (
       accessToken === null || accessToken === undefined ||
@@ -27,19 +30,19 @@
 
   function refresh(): void {
     console.log("access token expired")
-    fetch('http://localhost:8000/refresh?refresh_token=' + refreshToken, {
+    fetch(serverURL + 'refresh?refresh_token=' + refreshToken, {
       method: 'POST',
     }).then(response => {
       if (response.status !== 200) {
         localStorage.clear()
-        window.location.href = "http://localhost:5173"
+        window.location.href = baseURL
       }
       response.json().then(json => {
         console.log("got json: ", json)
         localStorage.setItem('access_token', json.access_token)
         if (json.refresh_token !== undefined) localStorage.setItem('refresh_token', json.refresh_token)
         localStorage.setItem('expires_at', json.expires_in + Math.floor(Date.now() / 1000))
-        window.location.href = "http://localhost:5173"
+        window.location.href = baseURL
       });
     })
   }

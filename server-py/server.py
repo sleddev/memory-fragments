@@ -24,7 +24,6 @@ load_dotenv()
 
 BYTES_PER_RESPONSE = 1024*100
 
-redirect_uri = 'http://localhost:5173'
 client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 combined = client_id + ":" + client_secret
@@ -37,7 +36,7 @@ def print(*message):
     builtins.print(output)
 
 @app.post('/login')
-async def login(code: str = ""):
+async def login(code: str = "", redirect_uri: str = ""):
     res = requests.post(
         url = "https://accounts.spotify.com/api/token",
         data = {

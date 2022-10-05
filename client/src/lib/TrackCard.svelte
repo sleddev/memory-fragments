@@ -13,6 +13,9 @@
   let spotify = new SpotifyApi(accessToken)
   $: previewURL = track.previewURL ? track.previewURL : fixURL(track)
 
+  const baseURL = window.location.protocol + '//' + window.location.host + '/'
+  const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu67.gitpod.io/'
+
   function audioClick(){
     if (!previewURL) return;
     console.log("Audio Clicked");
@@ -38,7 +41,7 @@
     return ''
   }
   function switchLink() {
-    previewURL = 'http://localhost:8000/download/track?track_id=' + track.id
+    previewURL = serverURL + 'download/track?track_id=' + track.id
   }
 
   onMount(() => {

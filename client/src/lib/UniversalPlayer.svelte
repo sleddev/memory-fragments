@@ -9,12 +9,15 @@
   let duration: number = 0
   let audioTime = 0
 
+  const baseURL = window.location.protocol + '//' + window.location.host + '/'
+  const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu67.gitpod.io/'
+
   export function togglePlay() {
     paused = !paused
   }
   export function setTrack(toSet: Track, full: boolean) {
     if (full) {
-      toSet.previewURL = 'http://localhost:8000/download/track?track_id=' + toSet.id
+      toSet.previewURL = serverURL + 'download/track?track_id=' + toSet.id
     }
     track = toSet
   }
