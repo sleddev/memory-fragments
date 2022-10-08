@@ -36,12 +36,15 @@
   function onAudioLoad() {
     player.play().then(() => uniPaused.update(() => false)).catch((e) => {})
   }
+  function audioEnded() {
+    uniPaused.update(() => true)
+  }
 
 </script>
 
 {#if track}
 <div id="uni-player">
-  <audio bind:this={player} bind:paused src={track.previewURL} bind:currentTime={audioTime} bind:duration={duration} on:loadedmetadata={() => onAudioLoad()} ></audio>
+  <audio bind:this={player} bind:paused src={track.previewURL} bind:currentTime={audioTime} bind:duration={duration} on:loadedmetadata={() => onAudioLoad()} on:ended={() => {audioEnded()}} ></audio>
   <div id="album-photo">
     <img src="{track.album.images[2].url}" alt="">
   </div>
@@ -60,6 +63,7 @@
         </div>
       </div>
     </div>
+    <div id="artist">{track.artists[0].name}</div>
     {#if player}
     <div id="controls">
       <div id="current">{formatMilliseconds(audioTime * 1000)}</div>
@@ -77,16 +81,17 @@
 <style>
   #uni-player {
     background-color: #1a1a1a;
-    width: 35em;
-    position: sticky;
-    bottom: 1em;
-    margin: 1em auto;
-    border: 1px solid #555;
-    border-radius: 15px;
+    flex-grow: 1;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    margin: 0;
+    border-top: 1px solid #555;
     filter: drop-shadow(0 0 1em #222);
     display: flex;
     padding: 1em;
     gap: 1em;
+    
   }
   #album-photo {
     display: block;
@@ -126,21 +131,25 @@
     align-items: center;
   }
   #details {
-    position: relative;
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex-basis: 30em;
   }
   
   #buttons-container {
     display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    right: 0;
-    top: 0;
+    right: 50%;
+    translate: 50%;
+    top: 1.2em;
     cursor: pointer;
-    min-width: 1em;
-    min-height: 1em;
+    min-width: 2em;
+    min-height: 2em;
     margin-left: auto;
+    background-color: #eee;
+    border-radius: 50%;
   }
   #play {
     transition: 0.2s;
@@ -148,6 +157,8 @@
     height: 1.2em;
     user-select: none;
     position: relative;
+    color: #1a1a1a;
+    translate: 8%;
   }
   #playicon {
     left: 0;
@@ -157,12 +168,21 @@
   }
 
   #controls {
+    position: absolute;
+    bottom: 0.5em;
+    right: 50%;
+    translate: 50%;
+    width: 25em;
     display: flex;
     margin-top: auto;
     align-self: stretch;
     justify-content: space-between;
     gap: .5em;
     align-items: center;
+  }
+  #slider-container:hover ::-webkit-progress-value {
+    background-color: #40aaff;
+    transition: 0.2s;
   }
   #slider-container {
     flex: 1;
@@ -189,7 +209,8 @@
     translate: 0% -26.5%;
   }
   ::-webkit-progress-value {
-  background-color: white;
+    background-color: white;
+    transition: 0.2s;
   }
   ::-webkit-progress-bar {
     background-color: #242424;
@@ -218,6 +239,10 @@
   #slider:hover::-webkit-slider-thumb {
     opacity: 1;
     transition: 0.2s;
+  }
+  #artist {
+    text-align: left;
+    color: #777;
   }
   
 </style>

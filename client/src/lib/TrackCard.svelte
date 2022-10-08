@@ -63,11 +63,13 @@
 
   uniTrackID.subscribe((value) => {
     active = value == track.id
+    isActive(track)
   })
   uniPaused.subscribe((value) => {
     paused = value
-    if (!active) return;
+    isActive(track)
     if (!playButton) return;
+    if (!active) return;
     if (value) {
       playButton.classList.remove("playing")
     } else {

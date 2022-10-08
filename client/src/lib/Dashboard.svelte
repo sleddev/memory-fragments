@@ -7,6 +7,7 @@
   import type { Track } from "./spotify/data/Track";
     import { SpotifyApi } from "./spotify/SpotifyApi";
     import { serverURL, uniTrackID } from "./stores";
+    import Sidebar from "./Sidebar.svelte";
 
 	export let accessToken: string
 	export let refreshToken: string
@@ -48,17 +49,16 @@
   }
 
   onMount(function () {
-    // uniTrackID.update(() => '2gGdO0zLa9W8ce1Ig0BzFK')
+    uniTrackID.update(() => '2gGdO0zLa9W8ce1Ig0BzFK')
   })
   
 	
 </script>
 <div id="dashboard">
   <nav>
-    <h1>MF</h1>
+    <Sidebar />
   </nav>
   <main>
-    <!-- <WebPlayback {accessToken} /> -->
     <TestResult accessToken={accessToken} />
     <UniversalPlayer bind:this={player} {accessToken} />
   </main>
@@ -68,17 +68,15 @@
   #dashboard {
     display: flex;
     flex-direction: column;
+    padding: 0;
   }
   nav {
-    width: 100%;
-    /* background-color: #1a1a1a; */
     margin: 0;
-    display: flex;
-    height: 3rem;
-    align-items: center;
-  }
-  h1 {
-    margin: 0 0.5em;
-    font-size: 24px;
+    padding: 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #1a1a1a;
+    filter: drop-shadow(0 0 1em #222);
   }
 </style>

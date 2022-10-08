@@ -32,19 +32,21 @@
 
 </script>
 
-<input type="text" placeholder='Search for a track:' bind:value={query} id="search-box" on:input="{() => fetchResults()}" on:paste="{() => fetchResults()}">
-{#if search}
-<div id="tracks">
-  {#each search as track, i }
-    <div class="card">
-      <TrackCard {accessToken} bind:track={track} />
-    </div>
-    {#if i != search.length - 1}
-    <div class="separator" />
-    {/if}
-  {/each}
-</div>
-{/if}
+<mf-testresult>
+  <input type="text" placeholder='Search for a track:' bind:value={query} id="search-box" on:input="{() => fetchResults()}" on:paste="{() => fetchResults()}">
+  {#if search}
+  <div id="tracks">
+    {#each search as track, i }
+      <div class="card">
+        <TrackCard {accessToken} bind:track={track} />
+      </div>
+      {#if i != search.length - 1}
+      <div class="separator" />
+      {/if}
+    {/each}
+  </div>
+  {/if}
+</mf-testresult>
 
 <style>
   #tracks {
@@ -53,6 +55,7 @@
     margin: 0 auto;
     border-radius: 15px;
     width: 30em;
+    margin-bottom: 7em;
     
   }
   .card {
