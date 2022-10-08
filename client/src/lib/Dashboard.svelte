@@ -6,6 +6,7 @@
   import TrackCard from "./TrackCard.svelte";
   import type { Track } from "./spotify/data/Track";
     import { SpotifyApi } from "./spotify/SpotifyApi";
+    import { serverURL, uniTrackID } from "./stores";
 
 	export let accessToken: string
 	export let refreshToken: string
@@ -17,7 +18,6 @@
   let testTrack: Track
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
-  const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu67.gitpod.io/'
 
 	function shouldRefresh(): boolean {
 	  return (
@@ -47,10 +47,8 @@
     })
   }
 
-  onMount(async function () {
-    let spotify = new SpotifyApi(accessToken)
-    testTrack = await spotify.tracks.getTrack('2gGdO0zLa9W8ce1Ig0BzFK')
-    player.setTrack(testTrack, true)
+  onMount(function () {
+    // uniTrackID.update(() => '2gGdO0zLa9W8ce1Ig0BzFK')
   })
   
 	

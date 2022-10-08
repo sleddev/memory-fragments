@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Track } from "./spotify/data/Track";
+    import { SpotifyApi } from "./spotify/SpotifyApi";
   import { formatMilliseconds } from "./spotify/utils";
+    import { serverURL, uniAutoPlay, uniPaused, uniTrackID } from "./stores";
 
   export let accessToken: string
   export let track: Track = null
@@ -10,10 +12,11 @@
   let audioTime = 0
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
-  const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu67.gitpod.io/'
+
+  let spotify = new SpotifyApi(accessToken)
 
   export function togglePlay() {
-    paused = !paused
+    uniPaused.update(() => !paused)
   }
   export function setTrack(toSet: Track, full: boolean) {
     if (full) {
@@ -22,11 +25,23 @@
     track = toSet
   }
 
+  uniTrackID.subscribe(async (value) => {
+    if (value) setTrack(await spotify.tracks.getTrack(value), true)
+  })
+
+  uniPaused.subscribe((value) => {
+    paused = value
+  })
+
+  function onAudioLoad() {
+    player.play().then(() => uniPaused.update(() => false)).catch((e) => {})
+  }
+
 </script>
 
 {#if track}
 <div id="uni-player">
-  <audio bind:this={player} bind:paused src={track.previewURL} bind:currentTime={audioTime} bind:duration={duration} ></audio>
+  <audio bind:this={player} bind:paused src={track.previewURL} bind:currentTime={audioTime} bind:duration={duration} on:loadedmetadata={() => onAudioLoad()} ></audio>
   <div id="album-photo">
     <img src="{track.album.images[2].url}" alt="">
   </div>

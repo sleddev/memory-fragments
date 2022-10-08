@@ -2,31 +2,30 @@
     import { onMount } from "svelte";
   import type { Track } from "./spotify/data/Track";
     import { SpotifyApi } from "./spotify/SpotifyApi";
+    import { serverURL, uniAutoPlay, uniPaused, uniTrackID } from "./stores";
 
 
   export let track: Track
   let playButton: HTMLElement
   let player: HTMLAudioElement
   let paused = true
+  let active = false
   let iconPath
   export let accessToken: string
   let spotify = new SpotifyApi(accessToken)
   $: previewURL = track.previewURL ? track.previewURL : fixURL(track)
+  $: activeHack = isActive(track)
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
-  const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu67.gitpod.io/'
 
   function audioClick(){
-    if (!previewURL) return;
-    console.log("Audio Clicked");
-    if (player.paused) {
-      player.play()
-      paused = player.paused;
-      playButton.classList.add("playing")
-    } else {
-      player.pause()
-      paused = player.paused;
-      playButton.classList.remove("playing")
+    if (paused && !active) {
+      uniPaused.update(() => true)
+      uniTrackID.update(() => track.id)
+    } else if (!paused && active) {
+      uniPaused.update(() => true)
+    } else if (paused && active) {
+      uniPaused.update(() => false)
     }
   }
   function audioEnded() {
@@ -40,11 +39,40 @@
     })
     return ''
   }
-  function switchLink() {
-    previewURL = serverURL + 'download/track?track_id=' + track.id
+  function isActive(track: Track) {
+    uniTrackID.update((value) => {
+      active = value == track.id
+      return value
+    })
+
+    if (!playButton) return;
+    if (!active) {
+      playButton.classList.remove("playing")
+    } else {
+      playButton.classList.add("playing")
+    }
+    uniPaused.update((value) => {
+      if (active) paused = value
+      else paused = true
+      return value
+    })
   }
 
   onMount(() => {
+  })
+
+  uniTrackID.subscribe((value) => {
+    active = value == track.id
+  })
+  uniPaused.subscribe((value) => {
+    paused = value
+    if (!active) return;
+    if (!playButton) return;
+    if (value) {
+      playButton.classList.remove("playing")
+    } else {
+      playButton.classList.add("playing")
+    }
   })
 
   
@@ -53,7 +81,6 @@
 <div class="track" on:click={() => audioClick()}> 
   <div id="image">
     <img src="{track.album.images[2].url}" alt="">
-    {#if player}
     <div id="play" bind:this={playButton} on:click|stopPropagation={() => audioClick()}>
       {#if paused}
       <svg id="playicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#ddd" d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/>
@@ -62,17 +89,12 @@
       <svg id="playicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="#ddd" d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/></svg>
       {/if}
     </div>
-    {/if}
   </div>
   <div id="separator"></div>
   <div id="details">
-    {#if previewURL}
-    <audio crossorigin="anonymous" bind:this={player} bind:paused on:ended="{() => audioEnded()}" src={previewURL}></audio>
-    {/if}
     <div id="name-container">
       {#if track.explicit}<div id="explicit">E</div>{/if}
       <div id="name">{track.name}</div>
-      <button id="download" on:click|stopPropagation="{() => switchLink()}"></button>
     </div>
     <div id="artist">{track.artists[0].name}</div>
     <div id="duration">{track.durationFormatted}</div>

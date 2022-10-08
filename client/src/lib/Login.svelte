@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { serverURL } from "./stores";
+
+
   export let code: string = ""
   export let refresh: boolean = false
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
-  const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu67.gitpod.io/'
 
   const AUTH_URL = "https://accounts.spotify.com/authorize?client_id=d028820e81fb4a6fb90ebf8b8bbbecbd&response_type=code&redirect_uri=" + baseURL + "&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state%20user-read-recently-played"
 

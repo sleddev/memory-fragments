@@ -3,10 +3,15 @@
   import type { Track } from "./spotify/data/Track";
     import { makeRequest } from "./spotify/Requests";
     import { SpotifyApi } from "./spotify/SpotifyApi";
+    import { uniPaused, uniTrackID } from "./stores";
   export let accessToken: string
   import TrackCard from './TrackCard.svelte'
 
-  //let track: Track
+  uniTrackID.subscribe((value) => console.log('Now playing ID: ' + value))
+  //uniPaused.subscribe((value) => console.log('Paused: ' + value))
+  
+  
+
   let search: Track[]
   let query = 'wolf'
   let lastFetched: number
@@ -15,7 +20,6 @@
 
   onMount(async function() {
     let spotify = new SpotifyApi(accessToken)
-    //track = await spotify.tracks.getTrack('1301WleyT98MSxVHPZCA6M')
     fetchResults()
   })
 
