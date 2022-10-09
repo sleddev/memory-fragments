@@ -19,9 +19,9 @@ export class SearchApi {
     this.accessToken = accessToken
   }
 
-  async searchTracks(query: string): Promise<Track[]> {
+  async searchTracks(query: string, limit: number): Promise<Track[]> {
     let response = await makeRequest({
-      url: 'https://api.spotify.com/v1/search/?market=HU&type=track&q=' + query,
+      url: 'https://api.spotify.com/v1/search/?market=HU&type=track&q=' + query + '&limit=' + limit,
       method: 'GET',
       headers: 
       {

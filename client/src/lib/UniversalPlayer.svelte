@@ -1,23 +1,23 @@
 <script lang="ts">
   import type { Track } from "./spotify/data/Track";
-    import { SpotifyApi } from "./spotify/SpotifyApi";
+  import { SpotifyApi } from "./spotify/SpotifyApi";
   import { formatMilliseconds } from "./spotify/utils";
-    import { serverURL, uniAutoPlay, uniPaused, uniTrackID } from "./stores";
+  import { serverURL, uniAutoPlay, uniPaused, uniTrackID } from "./stores";
 
+  const baseURL = window.location.protocol + '//' + window.location.host + '/'
+  
   export let accessToken: string
   export let track: Track = null
   export let paused = true
   let player: HTMLAudioElement
   let duration: number = 0
   let audioTime = 0
-
-  const baseURL = window.location.protocol + '//' + window.location.host + '/'
-
   let spotify = new SpotifyApi(accessToken)
 
   export function togglePlay() {
     uniPaused.update(() => !paused)
   }
+
   export function setTrack(toSet: Track, full: boolean) {
     if (full) {
       toSet.previewURL = serverURL + 'download/track?track_id=' + toSet.id
@@ -25,20 +25,20 @@
     track = toSet
   }
 
-  uniTrackID.subscribe(async (value) => {
-    if (value) setTrack(await spotify.tracks.getTrack(value), true)
-  })
-
-  uniPaused.subscribe((value) => {
-    paused = value
-  })
-
   function onAudioLoad() {
     player.play().then(() => uniPaused.update(() => false)).catch((e) => {})
   }
+
   function audioEnded() {
     uniPaused.update(() => true)
   }
+  
+  uniTrackID.subscribe(async (value) => {
+    if (value) setTrack(await spotify.tracks.getTrack(value), true)
+  })
+  uniPaused.subscribe((value) => {
+    paused = value
+  })
 
 </script>
 
@@ -80,14 +80,10 @@
 
 <style>
   #uni-player {
-    background-color: #1a1a1a;
+    background-color: #181818;
     flex-grow: 1;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    margin: 0;
-    border-top: 1px solid #555;
-    filter: drop-shadow(0 0 1em #222);
+    border-top: 1px solid #323232;
+    filter: drop-shadow(0 0 1em #070707);
     display: flex;
     padding: 1em;
     gap: 1em;
@@ -99,6 +95,7 @@
     width: 64px;
     border-radius: 15px;
     overflow: hidden;
+    user-select: none;
   }
   #name-container {
     white-space: nowrap;
@@ -112,8 +109,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: bold;
+    font-weight: 500;
     text-align: left;
+    color: #fff;
+  }
+  #artist {
+    text-align: left;
+    color: #a0a0a0;
   }
   #explicit {
     display: block;
@@ -129,13 +131,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
   }
   #details {
     display: flex;
     flex-direction: column;
     flex-basis: 30em;
   }
-  
   #buttons-container {
     display: flex;
     align-items: center;
@@ -166,7 +168,6 @@
     width: 100%;
     height: 100%;
   }
-
   #controls {
     position: absolute;
     bottom: 0.5em;
@@ -179,6 +180,7 @@
     justify-content: space-between;
     gap: .5em;
     align-items: center;
+    user-select: none;
   }
   #slider-container:hover ::-webkit-progress-value {
     background-color: #40aaff;
@@ -194,8 +196,8 @@
   }
   #current,
   #duration {
-    color: #777;
-    font-size: 0.93em;
+    color: #a0a0a0;
+    font-size: 0.9em;
   }
   #slider {
     -webkit-appearance: none;
@@ -239,10 +241,6 @@
   #slider:hover::-webkit-slider-thumb {
     opacity: 1;
     transition: 0.2s;
-  }
-  #artist {
-    text-align: left;
-    color: #777;
   }
   
 </style>

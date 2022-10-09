@@ -1,22 +1,17 @@
 <script lang="ts">
   import { to_number } from "svelte/internal";
   import { onMount } from 'svelte'
-  import TestResult from "./TestResult.svelte";
+  import { serverURL, uniTrackID } from "./stores";
+  import SearchResult from "./SearchResult.svelte";
   import UniversalPlayer from "./UniversalPlayer.svelte";
-  import TrackCard from "./TrackCard.svelte";
-  import type { Track } from "./spotify/data/Track";
-    import { SpotifyApi } from "./spotify/SpotifyApi";
-    import { serverURL, uniTrackID } from "./stores";
-    import Sidebar from "./Sidebar.svelte";
+  import Sidebar from "./Sidebar.svelte";
 
 	export let accessToken: string
 	export let refreshToken: string
 	export let expiresAtRaw: string
   let expiresAt = to_number(expiresAtRaw)
 
-  let results;
   let player: UniversalPlayer
-  let testTrack: Track
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
 
@@ -55,13 +50,17 @@
 	
 </script>
 <div id="dashboard">
-  <nav>
-    <Sidebar />
-  </nav>
-  <main>
-    <TestResult accessToken={accessToken} />
+  <div id="content">
+    <nav>
+      <Sidebar />
+    </nav>
+    <main>
+      <SearchResult accessToken={accessToken} />
+    </main>
+  </div>
+  <footer>
     <UniversalPlayer bind:this={player} {accessToken} />
-  </main>
+  </footer>
 </div>
 
 <style>
@@ -69,14 +68,23 @@
     display: flex;
     flex-direction: column;
     padding: 0;
+    max-height: 100vh;
+    background-color: #121212;
+  }
+  #content {
+    flex-grow: 0;
+    flex-basis: 50%;
+    overflow: hidden;
+    display: flex;
   }
   nav {
     margin: 0;
     padding: 0;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background-color: #1a1a1a;
-    filter: drop-shadow(0 0 1em #222);
+    background-color: #000000;
+    filter: drop-shadow(0 0 1em #070707);
+  }
+  main {
+    overflow: auto;
+    flex: 1;
   }
 </style>

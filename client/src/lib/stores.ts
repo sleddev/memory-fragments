@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 
-export const serverURL = 'https://8000-sleepyhusko-spotifysvel-y8d10ocm1wu.ws-eu70.gitpod.io/'
+export const serverURL = 'http://localhost:8000/'
 
 export const currentTime = writable(0)
 export const seekingStore = writable(false)

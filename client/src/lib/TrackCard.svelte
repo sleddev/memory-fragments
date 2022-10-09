@@ -1,17 +1,17 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+  import { onMount } from "svelte";
+  import { serverURL, uniAutoPlay, uniPaused, uniTrackID } from "./stores";
   import type { Track } from "./spotify/data/Track";
-    import { SpotifyApi } from "./spotify/SpotifyApi";
-    import { serverURL, uniAutoPlay, uniPaused, uniTrackID } from "./stores";
+  import { SpotifyApi } from "./spotify/SpotifyApi";
 
 
   export let track: Track
+  export let i: number
+  export let accessToken: string
   let playButton: HTMLElement
   let player: HTMLAudioElement
   let paused = true
   let active = false
-  let iconPath
-  export let accessToken: string
   let spotify = new SpotifyApi(accessToken)
   $: previewURL = track.previewURL ? track.previewURL : fixURL(track)
   $: activeHack = isActive(track)
@@ -27,10 +27,6 @@
     } else if (paused && active) {
       uniPaused.update(() => false)
     }
-  }
-  function audioEnded() {
-    paused = player.ended;
-    playButton.classList.remove("playing")
   }
 
   function fixURL(track: Track) {
@@ -58,9 +54,6 @@
     })
   }
 
-  onMount(() => {
-  })
-
   uniTrackID.subscribe((value) => {
     active = value == track.id
     isActive(track)
@@ -76,11 +69,10 @@
       playButton.classList.add("playing")
     }
   })
-
-  
 </script>
 
-<div class="track" on:click={() => audioClick()}> 
+<div class="track"> 
+  <div id="i">{i}</div>
   <div id="image">
     <img src="{track.album.images[2].url}" alt="">
     <div id="play" bind:this={playButton} on:click|stopPropagation={() => audioClick()}>
@@ -92,13 +84,17 @@
       {/if}
     </div>
   </div>
-  <div id="separator"></div>
   <div id="details">
     <div id="name-container">
-      {#if track.explicit}<div id="explicit">E</div>{/if}
       <div id="name">{track.name}</div>
+      <div id="artist-container">
+        {#if track.explicit}<div id="explicit">E</div>{/if}
+        <div id="artist">{track.artists[0].name}</div>
+      </div>
     </div>
-    <div id="artist">{track.artists[0].name}</div>
+    <div id="album">{track.album.name}</div>
+  </div>
+  <div id="end-container">
     <div id="duration">{track.durationFormatted}</div>
   </div>
 </div>
@@ -106,71 +102,83 @@
 <style>
   .track {
     color: #bbb;
-    background-color: #1a1a1a;
-    border-radius: 15px;
-    padding: 1em;
     margin: 0;
     display: flex;
-    width: 28em;
-    height: calc(64px);
+    gap: 1em;
+    align-items: center;
+    padding: 0.1em 0.8em;
+    border-radius: 5px;
   }
-  img {
-    border-radius: 15px;
-    width: 64px;
+  .track:hover {
+    background-color: #2a2a2a;
   }
   #details {
-    width: 80%;
-    position: relative;
-    text-align: left;
-  }
-  #name-container {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: bold;
     text-align: left;
     display: flex;
+    flex: 1;
+    align-items: center;
+  }
+  #name-container {
+    flex: 1.4 1 0;
   }
   #name {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: bold;
+    font-weight: 500;
     text-align: left;
+    margin: 0;
+    font-size: 1rem;
+    color: #fff;
   }
-  #duration {
-    box-sizing: border-box;
-    text-align: right;
-    position: absolute;
-    display: block;
-    bottom: 0;
-    right: 0;
-    color: #777
-  }
-  #separator {
-    margin: 0 0.5em;
-    flex-shrink: 0;
+  #artist-container {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    display: flex;
   }
   #artist {
     text-align: left;
-    color: #777;
+    color: #a0a0a0;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  #album {
+    flex: 1 1 0;
+    color: #a0a0a0;
+    font-size: 0.9rem;
+  }
+  #i {
+    display: flex;
+    flex-basis: 1em;
+    font-size: 0.9rem;
+    color: #a0a0a0;
+    user-select: none;
+    direction: rtl;
+  }
+  img {
+    width: 100%;
+    border-radius: 3px;
   }
   #image {
     position: relative;
+    width: 40px;
+    height: 40px;
+    user-select: none;
   }
   #play {
     background-color: rgba(0, 0, 0, 0.5);
     transition: 0.2s;
-    display: block;
-    width: 64px;
-    height: 64px;
-    border-radius: 15px;
+    width: 100%;
+    height: 100%;
     position:absolute;
     left: 0;
     top: 0;
     display: flex;
     justify-content: center;
     cursor: pointer;
+    border-radius: 3px;
   }
   #play.playing {
     opacity: 1;
@@ -185,13 +193,13 @@
   }
   #playicon {
     color: white;
-    width: 20px;
+    width: 15px;
     align-self: center;
   }
   #explicit {
     display: block;
     text-align: center;
-    background-color: #777;
+    background-color: #a0a0a0;
     border-radius: 3px;
     color: #1a1a1a;
     width: 1rem;
@@ -202,14 +210,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-weight: bold;
+    user-select: none;
   }
-  #download {
-    height: 1em;
-    padding: 0.5em;
-    align-self: center;
-    background-color: #777;
-    position: absolute;
-    right: 0;
+  #end-container {
+    margin-left: auto;
   }
-
+  #duration {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    user-select: none;
+  }
 </style>

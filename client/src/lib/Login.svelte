@@ -1,12 +1,10 @@
 <script lang="ts">
   import { serverURL } from "./stores";
 
-
   export let code: string = ""
   export let refresh: boolean = false
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
-
   const AUTH_URL = "https://accounts.spotify.com/authorize?client_id=d028820e81fb4a6fb90ebf8b8bbbecbd&response_type=code&redirect_uri=" + baseURL + "&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state%20user-read-recently-played"
 
   if (code !== "") {
@@ -30,4 +28,22 @@
   }
 </script>
 
+<h1 id="brand"><span class="brand">Memory</span> <br> Fragments</h1>
 <button><a href={AUTH_URL}>Login with Spotify</a></button>
+
+<style>
+  #brand {
+    user-select: none;
+    color: #fff;
+  }
+  .brand {
+    color: #40aaff;
+  }
+  button {
+    filter: drop-shadow(0 0 1em #0c0c0c);
+    border: 1px solid #282828;
+  }
+  button:hover {
+    border: 1px solid #40aaff;
+  }
+</style>

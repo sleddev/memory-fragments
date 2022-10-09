@@ -4,6 +4,9 @@
   export let accessToken: string
   let player: Spotify.Player
 
+  function togglePlay() {
+    player.togglePlay()
+  }
 
   onMount(function() {
     window.onSpotifyWebPlaybackSDKReady = () => {
@@ -25,13 +28,10 @@
     }
   })
 
-  function togglePlay() {
-    player.togglePlay()
-  }
 </script>
 
 {#if player}
 {#await player.getVolume() then volume}
-<p on:click="{() => {togglePlay()}}">{volume}</p>
+  <p on:click="{() => {togglePlay()}}">{volume}</p>
 {/await}
 {/if}
