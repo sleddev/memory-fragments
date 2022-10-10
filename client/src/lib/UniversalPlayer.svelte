@@ -96,6 +96,7 @@
     border-radius: 15px;
     overflow: hidden;
     user-select: none;
+    flex-shrink: 0;
   }
   #name-container {
     white-space: nowrap;
@@ -241,6 +242,21 @@
   #slider:hover::-webkit-slider-thumb {
     opacity: 1;
     transition: 0.2s;
+  }
+
+  @media (max-width: 720px) {
+    #uni-player {
+      margin: 0 auto;
+    }
+    #controls {
+      display: none;
+    }
+    #buttons-container {
+      right: 1em;
+      bottom: 1em;
+      top: auto;
+      translate: 0 0;
+    }
   }
   
 </style>

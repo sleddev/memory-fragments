@@ -87,4 +87,17 @@
     overflow: auto;
     flex: 1;
   }
+
+  @media (max-width: 720px) {
+    footer {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+    }
+
+    #dashboard {
+      display: block;
+      height: 100vh;
+    }
+  }
 </style>

@@ -63,4 +63,10 @@
     color: inherit;;
   }
 
+  @media (max-width: 720px) {
+    #sidebar {
+      display: none;
+    }
+  }
+
 </style>

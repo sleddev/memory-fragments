@@ -113,12 +113,15 @@
     background-color: #2a2a2a;
   }
   #details {
+    flex: 1 0 0;
     text-align: left;
     display: flex;
-    flex: 1;
     align-items: center;
+    overflow: hidden;
+    gap: 1em;
   }
   #name-container {
+    min-width: 0;
     flex: 1.4 1 0;
   }
   #name {
@@ -137,17 +140,24 @@
     text-overflow: ellipsis;
     text-align: left;
     display: flex;
+    min-width: 0;
   }
   #artist {
     text-align: left;
     color: #a0a0a0;
     margin: 0;
     font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   #album {
     flex: 1 1 0;
     color: #a0a0a0;
     font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   #i {
     display: flex;
@@ -166,6 +176,7 @@
     width: 40px;
     height: 40px;
     user-select: none;
+    flex-shrink: 0;
   }
   #play {
     background-color: rgba(0, 0, 0, 0.5);
@@ -212,6 +223,7 @@
     align-items: center;
     font-weight: bold;
     user-select: none;
+    flex-shrink: 0;
   }
   #end-container {
     margin-left: auto;
@@ -220,5 +232,17 @@
     color: #a0a0a0;
     font-size: 0.9rem;
     user-select: none;
+  }
+
+  @media (max-width: 720px) {
+    #album {
+      display: none;
+    }
+    #i {
+      display: none;
+    }
+    #duration {
+      display: none;
+    }
   }
 </style>

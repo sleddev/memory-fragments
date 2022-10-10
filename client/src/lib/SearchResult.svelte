@@ -86,4 +86,15 @@
     width: 1.2em;
     height: 1.2em;
   }
+
+  @media (max-width: 720px) {
+    #search-result {
+      padding: 0 0 1em 0;
+      gap: 0.5em;
+    }
+    #search-wrapper {
+      margin: 1em auto;
+      width: 80%;
+    }
+  }
 </style>
