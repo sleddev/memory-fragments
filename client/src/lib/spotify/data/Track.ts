@@ -1,3 +1,4 @@
+import type { IImage } from "../SpotifyApi";
 import { formatMilliseconds } from "../utils"
 
 export interface ITrackSerialized {
@@ -31,11 +32,6 @@ interface ITrackAlbum {
   release_date_precision: string
   total_tracks: number
   uri: string
-}
-interface IImage {
-  height: number
-  url: string
-  width: number
 }
 interface ITrackArtist {
   external_urls: Map<string, string>

@@ -18,5 +18,5 @@ export function makeRequest({url, method, headers, data, params}: IRequestParame
     body: body,
     method: method,
   }).then((res) => { return res.json() })
-  return response
+  return response as Promise<Response>
 }
