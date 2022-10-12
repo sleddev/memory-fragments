@@ -185,7 +185,7 @@
   }
   #slider-container:hover ::-webkit-progress-value {
     background-color: #40aaff;
-    transition: 0.2s;
+    transition: background-color 0.2s;
   }
   #slider-container {
     flex: 1;
@@ -213,7 +213,7 @@
   }
   ::-webkit-progress-value {
     background-color: white;
-    transition: 0.2s;
+    transition: background-color 0.2s;
   }
   ::-webkit-progress-bar {
     background-color: #242424;

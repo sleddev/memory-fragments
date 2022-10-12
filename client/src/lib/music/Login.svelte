@@ -28,8 +28,14 @@
   }
 </script>
 
-<h1 id="brand"><span class="brand">Memory</span> <br> Fragments</h1>
-<button><a href={AUTH_URL}>Login with Spotify</a></button>
+<h1 id="brand"><span class="brand">MF</span> Music</h1>
+<button>
+  {#if !code}
+  <a href={AUTH_URL}>Login with Spotify</a>
+  {:else}
+  Logging in...
+  {/if}
+</button>
 
 <style>
   #brand {

@@ -4,7 +4,7 @@
   import type { Track } from "./spotify/data/Track";
   import { SpotifyApi } from "./spotify/SpotifyApi";
   import TrackCard from './TrackCard.svelte'
-    import type { IUserProfile } from "./spotify/apis/UserApi";
+  import type { IUserProfile } from "./spotify/apis/UserApi";
   
   export let accessToken: string
 
@@ -62,7 +62,7 @@
 
 <style>
   #search-result {
-    background-color: ingerit;
+    background-color: inherit;
     padding: 1.5em 2.5em;
     display: flex;
     flex-direction: column;
@@ -73,6 +73,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
+    padding-bottom: 1em;
   }
   .card {
     margin: 0;
@@ -114,6 +115,7 @@
     overflow: hidden;
     padding: 0.4rem;
     gap: 0.3rem;
+    align-items: center;
   }
   #search-box {
     outline: none;

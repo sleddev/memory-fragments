@@ -5,6 +5,8 @@
   import SearchResult from "./SearchResult.svelte";
   import UniversalPlayer from "./UniversalPlayer.svelte";
   import Sidebar from "./Sidebar.svelte";
+  import { Router, Route } from "svelte-routing";
+  import NotFound from "../NotFound.svelte";
 
 	export let accessToken: string
 	export let refreshToken: string
@@ -14,6 +16,7 @@
   let player: UniversalPlayer
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
+  if (window.location.pathname === '/') window.location.pathname = '/search'
 
 	function shouldRefresh(): boolean {
 	  return (
@@ -44,19 +47,22 @@
   }
 
   onMount(function () {
-    uniTrackID.update(() => '2gGdO0zLa9W8ce1Ig0BzFK')
+    //uniTrackID.update(() => '2gGdO0zLa9W8ce1Ig0BzFK')
   })
   
 	
 </script>
 <div id="dashboard">
   <div id="content">
-    <nav>
-      <Sidebar />
-    </nav>
-    <main>
-      <SearchResult accessToken={accessToken} />
-    </main>
+    <Router>
+      <nav>
+        <Sidebar />
+      </nav>
+      <main>
+        <Route path="search"><SearchResult accessToken={accessToken} /></Route>
+        <Route><NotFound /></Route>
+      </main>
+      </Router>
   </div>
   <footer>
     <UniversalPlayer bind:this={player} {accessToken} />
@@ -76,6 +82,7 @@
     flex-basis: 50%;
     overflow: hidden;
     display: flex;
+    height: 100%;
   }
   nav {
     margin: 0;
@@ -86,6 +93,7 @@
   main {
     overflow: auto;
     flex: 1;
+    position: relative;
   }
 
   @media (max-width: 720px) {
