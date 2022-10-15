@@ -5,11 +5,11 @@
   export let refresh: boolean = false
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
-  const AUTH_URL = "https://accounts.spotify.com/authorize?client_id=d028820e81fb4a6fb90ebf8b8bbbecbd&response_type=code&redirect_uri=" + baseURL + "&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state%20user-read-recently-played"
+  const AUTH_URL = "https://accounts.spotify.com/authorize?client_id=d028820e81fb4a6fb90ebf8b8bbbecbd&response_type=code&redirect_uri=" + baseURL + 'music/' + "&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state%20user-read-recently-played"
 
   if (code !== "") {
     console.log("got code: ", code)
-    fetch(serverURL + 'login?code=' + code + '&redirect_uri=' + baseURL, {
+    fetch(serverURL + 'login?code=' + code + '&redirect_uri=' + baseURL +'music/', {
       method: 'POST',
     }).then(response => {
       response.json().then(json => {
@@ -18,7 +18,7 @@
         localStorage.setItem('access_token', json.access_token)
         localStorage.setItem('refresh_token', json.refresh_token)
         localStorage.setItem('expires_at', json.expires_in + Math.floor(Date.now() / 1000))
-        window.location.href = baseURL
+        window.location.href = baseURL + 'music/'
       });
     })
   }
@@ -41,6 +41,7 @@
   #brand {
     user-select: none;
     color: #fff;
+    outline: none;
   }
   .brand {
     color: #40aaff;

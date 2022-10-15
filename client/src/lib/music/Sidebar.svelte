@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Link } from 'svelte-routing'
+  import { Link } from 'svelte-navigator'
   import { onMount } from 'svelte';
 
   function updateLinks(event: MouseEvent) {
-    let page = document.querySelector('#' + window.location.pathname.slice(1) + '-item')
+    let page = document.querySelector('#' + window.location.pathname.slice(1).split('/')[1] + '-item')
     page.classList.remove('active')
     let target = event.target as HTMLElement
     target.classList.add('active')
@@ -11,7 +11,7 @@
   
   onMount(() => {
     document.querySelector('#home-item').classList.remove('active')
-    let page = document.querySelector('#' + window.location.pathname.slice(1) + '-item')
+    let page = document.querySelector('#' + window.location.pathname.slice(1).split('/')[1] + '-item')
     page.classList.add('active')
   })
 
@@ -46,6 +46,7 @@
     font-size: 24px;
     user-select: none;
     color: #fff;
+    outline: none;
   }
   .brand {
     color: #40aaff;

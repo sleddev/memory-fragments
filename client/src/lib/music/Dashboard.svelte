@@ -5,7 +5,7 @@
   import SearchResult from "./SearchResult.svelte";
   import UniversalPlayer from "./UniversalPlayer.svelte";
   import Sidebar from "./Sidebar.svelte";
-  import { Router, Route } from "svelte-routing";
+  import { Router, Route } from "svelte-navigator";
   import NotFound from "../NotFound.svelte";
 
 	export let accessToken: string
@@ -16,7 +16,7 @@
   let player: UniversalPlayer
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
-  if (window.location.pathname === '/') window.location.pathname = '/search'
+  if (window.location.pathname === '/music/') window.location.pathname = '/music/search/'
 
 	function shouldRefresh(): boolean {
 	  return (
@@ -54,15 +54,15 @@
 </script>
 <div id="dashboard">
   <div id="content">
-    <Router>
+    <Router primary={false}>
       <nav>
         <Sidebar />
       </nav>
       <main>
-        <Route path="search"><SearchResult accessToken={accessToken} /></Route>
+        <Route path="search/"><SearchResult accessToken={accessToken} /></Route>
         <Route><NotFound /></Route>
       </main>
-      </Router>
+    </Router>
   </div>
   <footer>
     <UniversalPlayer bind:this={player} {accessToken} />

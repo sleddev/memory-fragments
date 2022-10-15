@@ -98,6 +98,10 @@
     user-select: none;
     flex-shrink: 0;
   }
+  img {
+    height: 64px;
+    width: 64px;
+  }
   #name-container {
     white-space: nowrap;
     overflow: hidden;
