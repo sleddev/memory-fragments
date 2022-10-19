@@ -18,7 +18,6 @@
     if (!query) return;
     await spotify.search.searchTracks(query, 50).then((res) => search = Array.from(res))
     search = search
-    lastFetched = Date.now()
   }
   
   function logOut() {

@@ -5,6 +5,7 @@
   import { to_number } from 'svelte/internal';
 
   const urlParams = new URLSearchParams(window.location.search)
+  const baseURL = window.location.protocol + '//' + window.location.host + '/'
   const code = urlParams.get('code')
 
   const accessToken = localStorage.getItem('access_token')
@@ -14,9 +15,16 @@
 
   function shouldRefresh(): boolean {
     return (
-      expiresAtRaw === null || accessToken === null || refreshToken === null
+      expiresAtRaw === null || accessToken === null || refreshToken === null ||
+      expiresAtRaw === undefined || accessToken == undefined || refreshToken == undefined
     )
   }
+
+  if (localStorage.getItem == undefined) {
+    localStorage.clear()
+    window.location.href = baseURL + 'music/'
+  }
+
   function shouldLogin(): boolean {
     return (
       refreshToken === null || refreshToken === undefined

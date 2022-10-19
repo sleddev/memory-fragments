@@ -1,3 +1,4 @@
+import type { Playlist } from "../data/Playlist";
 import { makeRequest } from "../Requests"
 import type { IImage } from "../SpotifyApi";
 
@@ -11,6 +12,14 @@ export interface IUserProfile {
   product: "premium" | "free" | "open"
   type: "user"
   uri: string;
+}
+export interface IUserPlaylists {
+  href: string;
+  items: Playlist[];
+  next: string;
+  offset: number;
+  previous: string;
+  total: number;
 }
 
 export class UserApi {
@@ -32,6 +41,21 @@ export class UserApi {
     })
 
     if (response.status === 200) return (await response.json()) as IUserProfile
+    return response
+  }
+
+  async getPlaylists() {
+    let response = await makeRequest({
+      url: 'https://api.spotify.com/v1/me/playlists/',
+      method: 'GET',
+      headers: 
+      {
+        'Authorization': 'Bearer ' + this.accessToken,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.status === 200) return (await response.json()) as IUserPlaylists
     return response
   }
 }

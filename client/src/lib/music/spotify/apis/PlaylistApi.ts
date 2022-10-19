@@ -1,16 +1,16 @@
-import { Track, type ITrackSerialized } from "../data/Track"
+import { Playlist, type IPlaylistSerialized } from "../data/Playlist"
 import { makeRequest } from "../Requests"
 
-export class TrackApi {
+export class PlaylistApi {
   private accessToken: string
 
   constructor(accessToken: string) {
     this.accessToken = accessToken
   }
 
-  async getTrack(id: string) {
+  async getPlaylist(id: string) {
     let response = await makeRequest({
-      url: 'https://api.spotify.com/v1/tracks/' + id,
+      url: 'https://api.spotify.com/v1/playlists/' + id,
       method: 'GET',
       headers: 
       {
@@ -19,6 +19,6 @@ export class TrackApi {
       },
       params: new Map([['market', 'HU']])
     })
-    return new Track().fromJSON(response as unknown as ITrackSerialized)
+    return new Playlist().fromJSON(response as unknown as IPlaylistSerialized)
   }
 }
