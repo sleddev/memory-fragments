@@ -8,8 +8,9 @@
   import { Router, Route } from "svelte-navigator";
   import NotFound from "../NotFound.svelte";
   import PlaylistComponent from "./PlaylistComponent.svelte";
-    import { Playlist } from "./spotify/data/Playlist";
-    import { writable } from "svelte/store";
+  import { Playlist } from "./spotify/data/Playlist";
+  import { writable } from "svelte/store";
+  import LikedSongs from "./LikedSongs.svelte";
 
 	export let accessToken: string
 	export let refreshToken: string
@@ -69,6 +70,7 @@
       </nav>
       <main>
         <Route path="search/"><SearchResult accessToken={accessToken} /></Route>
+        <Route path="library/liked/"><LikedSongs {accessToken} /></Route>
         <Route path="playlist/:id" let:params><PlaylistComponent {accessToken} id={writable(params.id)} /></Route>
         <Route><NotFound /></Route>
       </main>

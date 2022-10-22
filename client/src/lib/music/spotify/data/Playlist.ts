@@ -50,6 +50,39 @@ export class Playlist {
   tracks: Track[]
   type: string;
   uri: string;
+  total: number;
+
+  constructor({
+    collaborative = false,
+    description = '',
+    followers = <IFollowers>{},
+    id = '',
+    images = new Array<IImage>(),
+    playlist_name = '',
+    owner = <IPlaylistOwner>{},
+    is_public = false,
+    snapshot_id = '',
+    type = 'playlist',
+    uri = '',
+    tracks = new Array<Track>(),
+    total = 0
+  } = {}) {
+    this.collaborative = collaborative
+    this.description = description
+    this.followers = followers
+    this.id = id
+    this.images = images
+    this.name = playlist_name
+    this.owner = owner
+    this.public = is_public 
+    this.snapshotID = snapshot_id
+    this.type = type
+    this.uri = uri
+    this.tracks = tracks
+    this.total = total
+
+    return this;
+  }
 
   fromJSON(obj: IPlaylistSerialized) {
     this.collaborative = obj.collaborative

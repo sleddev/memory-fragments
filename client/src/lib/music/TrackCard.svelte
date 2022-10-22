@@ -110,7 +110,7 @@
     border-radius: 5px;
   }
   .track:hover {
-    background-color: #2a2a2a;
+    background-color: #ffffff1a;
   }
   #details {
     flex: 1 0 0;

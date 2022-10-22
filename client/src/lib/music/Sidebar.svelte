@@ -10,6 +10,8 @@
 
   let playlists: Playlist[]
 
+  // TODO: Determine active item with custom stores
+
 
   function updateLinks(event: MouseEvent) {
     try {

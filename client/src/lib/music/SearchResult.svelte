@@ -50,6 +50,12 @@
   </div>
   {#if search}
   <div id="tracks">
+    <div id="top-row">
+      <div id="top-index">#</div>
+      <div id="top-name">NAME</div>
+      <div id="top-album">ALBUM</div>
+      <div id="top-etc">🕒</div>
+    </div>
     {#each search as track, i}
       <div class="card">
         <TrackCard {accessToken} bind:track={track} i="{i + 1}" />
@@ -130,6 +136,32 @@
   #search-icon {
     width: 1.2em;
     height: 1.2em;
+  }
+  #top-row {
+    display: flex;
+    width: 100%;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #a0a0a0;
+    border-bottom: 1px solid #282828;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    user-select: none;
+  }
+  #top-index {
+    flex: 0 0 2.8rem;
+    text-align: center;
+  }
+  #top-name {
+    flex: 6 0 0;
+    margin-left: 55px;
+  }
+  #top-album {
+    flex: 4.2 0 0;
+  }
+  #top-etc {
+    flex: 0 0 4rem;
+    text-align: center;
   }
 
   @media (max-width: 720px) {
