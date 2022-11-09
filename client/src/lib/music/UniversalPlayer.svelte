@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { Track } from "./spotify/data/Track";
   import { SpotifyApi } from "./spotify/SpotifyApi";
-  import { formatMilliseconds } from "./spotify/utils";
+  import { formatMilliseconds, onInterval } from "./spotify/utils";
   import { serverURL, uniAutoPlay, uniPaused, uniTrackID } from "./stores";
+  import WebPlayback from "./WebPlayback.svelte";
 
   const baseURL = window.location.protocol + '//' + window.location.host + '/'
   
@@ -13,9 +14,14 @@
   let duration: number = 0
   let audioTime = 0
   let spotify = new SpotifyApi(accessToken)
+  let webPlayback = true
+  let webPlayer: WebPlayback
+
+  onInterval(() => audioTime += paused ? 0 : 0.1, 100);
 
   export function togglePlay() {
     uniPaused.update(() => !paused)
+    if (webPlayback) webPlayer.togglePlay()
   }
 
   export function setTrack(toSet: Track, full: boolean) {
@@ -23,6 +29,7 @@
       toSet.previewURL = serverURL + 'download/track?track_id=' + toSet.id
     }
     track = toSet
+    if (webPlayback) uniPaused.update(() => false)
   }
 
   function onAudioLoad() {
@@ -35,6 +42,10 @@
   
   uniTrackID.subscribe(async (value) => {
     if (value) setTrack(await spotify.tracks.getTrack(value), true)
+    if (webPlayback && webPlayer) {
+      webPlayer.play(value)
+      duration = track.durationMillis / 1000
+    }
   })
   uniPaused.subscribe((value) => {
     paused = value
@@ -42,9 +53,14 @@
 
 </script>
 
+{#if webPlayback}
+<WebPlayback {accessToken} bind:this={webPlayer} />
+{/if}
 {#if track}
 <div id="uni-player">
+  {#if !webPlayback}
   <audio bind:this={player} bind:paused src={track.previewURL} bind:currentTime={audioTime} bind:duration={duration} on:loadedmetadata={() => onAudioLoad()} on:ended={() => {audioEnded()}} ></audio>
+  {/if}
   <div id="album-photo">
     <img src="{track.album.images[2].url}" alt="">
   </div>
@@ -64,12 +80,12 @@
       </div>
     </div>
     <div id="artist">{track.artists[0].name}</div>
-    {#if player}
+    {#if player || webPlayer}
     <div id="controls">
       <div id="current">{formatMilliseconds(audioTime * 1000)}</div>
       <div id="slider-container">
         <progress min="0" max={duration} value={audioTime} id="progress"></progress>
-        <input type="range" min="0" max={duration} step="any" bind:value={audioTime} id="slider">
+        <input type="range" min="0" max={duration} step="any" bind:value={audioTime} id="slider" on:input={(event) => { webPlayer.seek(audioTime * 1000) }}>
       </div>
       <div id="duration">{formatMilliseconds(duration * 1000)}</div>
     </div>

@@ -3,6 +3,7 @@
   import { onMount } from 'svelte'
   import { serverURL, uniTrackID } from "./stores";
   import SearchResult from "./SearchResult.svelte";
+  import WebPlayback from "./WebPlayback.svelte";
   import UniversalPlayer from "./UniversalPlayer.svelte";
   import Sidebar from "./Sidebar.svelte";
   import { Router, Route } from "svelte-navigator";

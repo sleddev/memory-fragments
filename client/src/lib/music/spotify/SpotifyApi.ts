@@ -1,3 +1,4 @@
+import { PlayerApi } from "./apis/PlayerApi";
 import { PlaylistApi } from "./apis/PlaylistApi";
 import { SearchApi } from "./apis/SearchApi";
 import { TrackApi } from "./apis/TrackApi";
@@ -14,6 +15,7 @@ export class SpotifyApi {
 
   search: SearchApi
   tracks: TrackApi
+  player: PlayerApi
   playlists: PlaylistApi
   user: UserApi
   
@@ -22,6 +24,7 @@ export class SpotifyApi {
 
     this.search = new SearchApi(this.accessToken)
     this.tracks = new TrackApi(this.accessToken)
+    this.player = new PlayerApi(this.accessToken)
     this.playlists = new PlaylistApi(this.accessToken)
     this.user = new UserApi(this.accessToken)
   }

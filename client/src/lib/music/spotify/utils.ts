@@ -1,3 +1,5 @@
+import { onDestroy } from "svelte";
+
 function padTo2Digits(num) {
   return num.toString().padStart(2, '0');
 }
@@ -19,4 +21,11 @@ export function getSubdomain() {
   if (parts[0] === 'www') parts.splice(0, 1)
   let base = parts[parts.length - 1] === 'localhost' ? 1 : 2
   return parts.length > base ? parts[0] : ''
+}
+
+export function onInterval(callback: () => void, milliseconds: number) {
+	const interval = setInterval(callback, milliseconds);
+	onDestroy(() => {
+		clearInterval(interval);
+	});
 }
