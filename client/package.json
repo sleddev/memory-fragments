@@ -1,28 +1,25 @@
 {
-  "name": "svelte-spotify",
+  "name": "memory-fragments",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview --port 5173",
+    "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.2",
-    "@tsconfig/svelte": "^3.0.0",
-    "svelte": "^3.49.0",
-    "svelte-check": "^2.8.1",
-    "svelte-preprocess": "^4.10.7",
-    "tslib": "^2.4.0",
-    "typescript": "^4.6.4",
-    "vite": "^3.1.0",
-    "vite-plugin-pwa": "^0.13.1",
-    "workbox-window": "^6.5.4"
+    "@sveltejs/vite-plugin-svelte": "^2.0.3",
+    "@tsconfig/svelte": "^4.0.1",
+    "svelte": "^3.57.0",
+    "svelte-check": "^2.10.3",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.0"
   },
   "dependencies": {
-    "@types/spotify-web-playback-sdk": "^0.1.15",
-    "svelte-navigator": "^3.2.2"
+    "pbkdf2-hmac": "^1.2.1",
+    "svelte-routing": "^1.6.0"
   }
 }
