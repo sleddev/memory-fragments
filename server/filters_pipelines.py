@@ -24,6 +24,15 @@ def find_user_from_refresh_token(token: str):
     }
   }
 
+def find_user_from_name(username: str):
+  return { 'username': { '$eq': username.lower() } }
+
+def find_user_from_email(email: str): #TODO: remove dots and aliases
+  return { 'email': { '$eq': email.lower() } }
+
+def find_email_verification(username: str):
+  return { 'username': { '$eq': username.lower() } }
+
 def aggregate_refresh_token(token: str):
   return [
     {'$match': find_user_from_refresh_token(token)},

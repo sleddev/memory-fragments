@@ -21,6 +21,10 @@ export function bytesToHex(bytes: Uint8Array) {
   return hex.join("");
 }
 
+export function bytesToB64(bytes: Uint8Array) {
+  return btoa(String.fromCharCode(...new Uint8Array(bytes)));
+}
+
 // only works on positive numbers
 function bytesToBigInt(bytes: Uint8Array) {
   let value = BigInt(0);
@@ -40,11 +44,11 @@ export async function sha256hash(data: string) {
   return hashHex;
 }
 
-export async function deriveKey(pass: string, salt: string) {
+export async function deriveKey(pass: string, salt: string, out: "bytes" | "hex" | "b64" = "bytes") {
   let dk = await pbkdf2Hmac(pass, salt, 2048, 32, "SHA-256");
-  //let dkB64 = btoa(String.fromCharCode(...new Uint8Array(dk)));
-  //return dkB64;
-  return bytesToHex(new Uint8Array(dk))
+  if (out == "hex") return bytesToHex(new Uint8Array(dk));
+  if (out == "b64") return bytesToB64(new Uint8Array(dk));
+  return new Uint8Array(dk);
 }
 
 //customized port of python bip39 package
