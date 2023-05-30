@@ -14,6 +14,7 @@ from pymongo.server_api import ServerApi
 from dotenv import dotenv_values
 
 from filters_pipelines import *
+from emails import EmailSender
 
 env = dotenv_values(".env")
 app = FastAPI()
@@ -23,6 +24,7 @@ mongo_uri = env["MONGO_URI"]
 
 mongo = MongoClient(mongo_uri, server_api=ServerApi('1'))
 db = mongo[env["DATABASE_NAME"]]
+email_sender = EmailSender(env["GMAIL_ADDR"], env["GMAIL_PASS"])
 
 access_token_expiry = 3_600_000 # one hour
 verify_email_expiry = 1_200_000 # 20 minutes
@@ -30,9 +32,9 @@ verify_email_expiry = 1_200_000 # 20 minutes
 ##### Middleware #####
 
 open_endpoints = [
-  '/', '/auth/login', '/auth/register', '/auth/refresh',
+  '', '/', '/auth/login', '/auth/register', '/auth/refresh',
   '/auth/isavailable', '/auth/verify_email', '/auth/verify_email/send',
-  '/openapi.json', '/docs', '/redoc'
+  '/openapi.json', '/docs', '/redoc', '/favicon.ico'
 ]
 
 @app.middleware("http")
@@ -43,7 +45,7 @@ async def token_middleware(request: Request, call_next):
   token_status = await verify_token((request.headers.get("Authorization") or "").split(' ')[-1])
   if token_status == "notfound" or token_status == "invalid":
     return Response('{"message": "Invalid access token"}', status_code=401)
-  if token_status == "expired":
+  if token_status == "expired": 
     return Response('{"message": "Access token expired"}', status_code=401)
   else: return await call_next(request)
 
@@ -77,12 +79,17 @@ async def is_available(response: Response, username: str = None, email: str = No
   response.status_code = 400
   return {"message": "Provide either email or username"}
 
+#TODO: make it a proper POST request with frontend
 class VerifyEmailBody(BaseModel):
   username: str = ""
   code: str = ""
-@app.post('/auth/verify_email')
-async def verify_email(response: Response, body: VerifyEmailBody = None):
+@app.get('/auth/verify_email')
+async def verify_email(response: Response, body: VerifyEmailBody = None, username: str = None, code: str = None):
   timestamp: int = math.floor(datetime.now().timestamp() * 1000)
+  if username is not None and code is not None:
+    body = VerifyEmailBody()
+    body.username = username
+    body.code = code
   if body is None:
     response.status_code = 400
     return {"error": "Invalid request body"}
@@ -126,12 +133,13 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
     return {"error": "Invalid username or email, or already verified. Wait one minute between sending emails."}
   
   doc = db['email-verification'].find_one(find_email_verification(body.username), {"_id": 0})
+  digits = secrets.randbelow(900_000) + 100_000
   if doc is None:
     db['email-verification'].insert_one({
       "username": user["username"],
       "email": user["email"],
       "attempts": 0,
-      "code": secrets.randbelow(900_000) + 100_000,
+      "code": digits,
       "created_at": timestamp,
       "expires_at": timestamp + verify_email_expiry
     })
@@ -143,13 +151,22 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
       find_email_verification(body.username),
       {"$set": {
         "attempts": 0,
-        "code": secrets.randbelow(900_000) + 100_000,
+        "code": digits,
         "created_at": timestamp,
         "expires_at": timestamp + verify_email_expiry
       }}
     )
-  #TODO: send email
-  return {"message": "Email sent"}
+    
+  code = (await get_email_code(body.email, str(digits))).decode('utf-8')
+  link = f"{env['SERVER_URL']}/auth/verify_email?username={body.username}&code={code}"
+  try:
+    email_sender.send_verification(body.email, body.username, str(digits), link)
+    return {"message": "Email sent"}
+  except Exception as e:
+    print(e)
+    response.status_code = 400
+    return {"error": "Failed to send verification email"}
+    
   
 class RegisterBody(BaseModel):
   username: str = None
@@ -310,6 +327,7 @@ async def verify_token(token: str, token_type: Literal["access", "refresh"] = "a
   return "valid"
 
 async def get_email_code(email: str, digits: str):
+  print(f"{email}:{digits}")
   return base64.b64encode(hashlib.sha256(bytes(email + digits, "utf-8")).digest())
 
 
