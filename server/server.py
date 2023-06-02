@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from dotenv import dotenv_values
+from starlette.middleware.cors import CORSMiddleware
 
 from filters_pipelines import *
 from emails import EmailSender
@@ -30,6 +31,18 @@ access_token_expiry = 3_600_000 # one hour
 verify_email_expiry = 1_200_000 # 20 minutes
 
 ##### Middleware #####
+
+origins = [
+  "*"
+]
+
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=origins,
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
+)
 
 open_endpoints = [
   '', '/', '/auth/login', '/auth/register', '/auth/refresh',
