@@ -32,17 +32,6 @@ verify_email_expiry = 1_200_000 # 20 minutes
 
 ##### Middleware #####
 
-origins = [
-  "*"
-]
-
-app.add_middleware(
-  CORSMiddleware,
-  allow_origins=origins,
-  allow_credentials=True,
-  allow_methods=["*"],
-  allow_headers=["*"],
-)
 
 open_endpoints = [
   '', '/', '/auth/login', '/auth/register', '/auth/refresh',
@@ -62,6 +51,17 @@ async def token_middleware(request: Request, call_next):
     return Response('{"message": "Access token expired"}', status_code=401)
   else: return await call_next(request)
 
+origins = [
+  "*"
+]
+
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=origins,
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
+)
 
 ##### General #####
 
