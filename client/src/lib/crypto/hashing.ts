@@ -43,6 +43,15 @@ export async function sha256hash(data: string) {
     .join('');
   return hashHex;
 }
+export async function sha512hash(data: string) {
+  const utf8 = new TextEncoder().encode(data);
+  const hashBuffer = await crypto.subtle.digest('SHA-512', utf8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray
+    .map((bytes) => bytes.toString(16).padStart(2, '0'))
+    .join('');
+  return hashHex;
+}
 
 export async function deriveKey(pass: string, salt: string, out: "bytes" | "hex" | "b64" = "bytes") {
   let dk = await pbkdf2Hmac(pass, salt, 2048, 32, "SHA-256");

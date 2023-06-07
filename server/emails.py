@@ -39,7 +39,7 @@ Alternatively, you can use this link: {link}
       padding: 1.2em 0.8em; text-align: justify; }}
     html {{ margin: 0; }} h1 {{ margin-top: 0; font-size: 2em; }}
     #pre-code {{ display: block; font-weight: bold; }}
-    #code {{ color: #40aaff; font-size: 1.25em; }}
+    #code {{ color: #40aaff; }}
     #link {{ line-break: anywhere; }}
     p {{ font-size: 1.3em; font-weight: 300; }}
     @media only screen and (min-width: 768px) {'''{
@@ -47,7 +47,7 @@ Alternatively, you can use this link: {link}
   </style></head><body>
   <h1>Hi, {username}!</h1>
   <p>Welcome to Memory Fragments! To confirm your registration, please verify your email.</p>
-  <p id="pre-code">Your code:<span id="code">{code}</span></p>
+  <p id="pre-code">Your code: <span id="code">{code}</span></p>
   <p id="pre-link">Alternatively, you can use this link: <br/>
   <a id="link" href="{link}">{link}</a></p></body></html>
 """, 'html')
