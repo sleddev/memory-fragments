@@ -117,8 +117,8 @@ export async function bip39decode(phrase: string) {
   return data
 }
 
-export function getEntropyBits(numWords: number) {
-  let bitsObj: Object = {12: 128, 15: 160, 18: 192, 21: 224, 24: 256}
+export function getEntropyBits(numWords: number): number {
+  let bitsObj: { [key: number]: number} = {12: 128, 15: 160, 18: 192, 21: 224, 24: 256}
   if (bitsObj.hasOwnProperty(numWords)) {
     return bitsObj[numWords]
   } else {

@@ -3,6 +3,7 @@ import math
 import secrets
 import hashlib
 import re
+import requests
 
 from typing import Literal
 from datetime import datetime
@@ -29,6 +30,12 @@ email_sender = EmailSender(env["GMAIL_ADDR"], env["GMAIL_PASS"])
 
 access_token_expiry = 3_600_000 # one hour
 verify_email_expiry = 1_200_000 # 20 minutes
+
+spotify_id = env["SPOTIFY_ID"]
+spotify_secret = env["SPOTIFY_SECRET"]
+spotify_encoded = \
+  base64.b64encode(f'{spotify_id}:{spotify_secret}'.encode("ascii")) \
+  .decode("ascii")
 
 ##### Middleware #####
 
@@ -92,11 +99,11 @@ async def is_available(response: Response, username: str = None, email: str = No
   response.status_code = 400
   return {"message": "Provide either email or username"}
 
-#TODO: make it a proper POST request with frontend
+#TODO: @app.get('/auth/verify_email'), return HTML
 class VerifyEmailBody(BaseModel):
   username: str = ""
   code: str = ""
-@app.get('/auth/verify_email')
+@app.post('/auth/verify_email')
 async def verify_email(response: Response, body: VerifyEmailBody = None, username: str = None, code: str = None):
   timestamp: int = math.floor(datetime.now().timestamp() * 1000)
   if username is not None and code is not None:
@@ -111,7 +118,6 @@ async def verify_email(response: Response, body: VerifyEmailBody = None, usernam
   expected = await get_email_code(email, digits)
   print(expected)
   if not secrets.compare_digest(expected, bytes(body.code, "utf-8")) or doc is None or timestamp >= doc["expires_at"]:
-    response.status_code = 400
     if doc is not None:
       db['email-verification'].update_one(
         find_email_verification(body.username),
@@ -120,8 +126,9 @@ async def verify_email(response: Response, body: VerifyEmailBody = None, usernam
         }
       )
     if doc is not None and doc["attempts"] >= 5:
-      response.status_code = 401
+      response.status_code = 420
       return {"error": "Too many attempts!"}
+    response.status_code = 401
     return {"error": "Invalid username or code"}
   
   db['users'].update_one(
@@ -141,9 +148,12 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
     response.status_code = 400
     return {"error": "Invalid request body"}
   user = db['users'].find_one(find_user_from_name(body.username))
-  if user is None or user["email"] != body.email.lower() or user["verified"]:
-    response.status_code = 400
-    return {"error": "Invalid username or email, or already verified. Wait one minute between sending emails."}
+  if user is None or user["email"] != body.email.lower():
+    response.status_code = 401
+    return {"error": "Invalid username or email."}
+  if user["verified"]:
+    response.status_code = 409
+    return {"error": "Email already verified"}
   
   doc = db['email-verification'].find_one(find_email_verification(body.username), {"_id": 0})
   digits = secrets.randbelow(900_000) + 100_000
@@ -158,8 +168,8 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
     })
   else:
     if doc["created_at"] > timestamp - 60_000:
-      response.status_code = 400
-      return {"error": "Invalid username or email, or already verified. Wait one minute between sending emails."}
+      response.status_code = 420
+      return {"error": "Wait one minute between sending emails."}
     db['email-verification'].update_one(
       find_email_verification(body.username),
       {"$set": {
@@ -177,7 +187,7 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
     return {"message": "Email sent"}
   except Exception as e:
     print(e)
-    response.status_code = 400
+    response.status_code = 500
     return {"error": "Failed to send verification email"}
     
   
@@ -269,7 +279,8 @@ async def login(response: Response, body: LoginBody = None):
   return {
     "refresh_token": refresh_token,
     "access_token": access_token,
-    "expires_at": access_timestamp + access_token_expiry
+    "created_at": access_timestamp,
+    "expires_in": access_token_expiry
   }
 
 class RefreshBody(BaseModel):
@@ -297,9 +308,9 @@ async def refresh(response: Response, body: RefreshBody = None):
     }} }
   )
   return {
-    "token": access_token,
+    "access_token": access_token,
     "created_at": access_timestamp,
-    "expires_at": access_timestamp + access_token_expiry
+    "expires_in": access_token_expiry
   }
 
 async def get_token_signature(username: str, creation_time: int, token_type: Literal["access", "refresh"] = "access"):
@@ -356,3 +367,57 @@ async def me(request: Request):
       'refresh_tokens': 0
     }
   )
+
+
+##### Spotify #####
+
+@app.post('/spotify/login')
+async def spotify_login(response: Response, code: str = "", redirect_uri: str = ""):
+  res = requests.post(
+    url = "https://accounts.spotify.com/api/token",
+    data = {
+      'grant_type': 'authorization_code',
+      'code': code,
+      'redirect_uri': redirect_uri,
+    },
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + spotify_encoded,
+    },
+  )
+  response.status_code = res.status_code
+  return res.json()
+
+@app.post('/spotify/refresh')
+async def spotify_refresh(response: Response, refresh_token: str = ""):
+  res = requests.post(
+    url = "https://accounts.spotify.com/api/token",
+    data = {
+      'grant_type': 'refresh_token',
+      'refresh_token': refresh_token,
+    },
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + spotify_encoded,
+    }
+  )
+  response.status_code = res.status_code
+  return res.json()
+
+import azapi
+
+@app.get('/spotify/lyrics')
+async def spotify_lyrics(response: Response, artist: str, title: str):
+  az_api = azapi.AZlyrics()
+  az_api.artist = artist
+  az_api.title = title
+  az_api.getLyrics()
+
+  return {"lyrics": az_api.lyrics}
+
+
+##### Music #####
+
+@app.get('/music')
+async def asd():
+  pass

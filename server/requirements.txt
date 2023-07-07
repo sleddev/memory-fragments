@@ -4,3 +4,4 @@ pymongo~=4.3.3
 python-dotenv~=1.0.0
 pydantic~=1.10.8
 starlette~=0.27.0
+requests~=2.31.0
