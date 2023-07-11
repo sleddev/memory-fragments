@@ -4,7 +4,7 @@ import { render } from 'solid-js/web';
 import './index.css';
 import { App } from './App';
 
-import { MFProvider } from './components/MFContext';
+import { MFProvider } from './contexts/MFContext';
 
 const root = document.body;
 

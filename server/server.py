@@ -238,31 +238,36 @@ async def register(response: Response, body: RegisterBody = None):
 
 class LoginBody(BaseModel):
   username: str = None
+  email: str = None
   password: str = None
 @app.post('/auth/login')
 async def login(response: Response, body: LoginBody = None):
   timestamp: int = math.floor(datetime.now().timestamp() * 1000)
 
-  if body is None or body.username is None or body.password is None:
+  if body is None or (body.username is None and body.email is None) or body.password is None:
     response.status_code = 400
     return {"error": "Invalid request body"}
-  user = db['users'].find_one(find_user_from_name(body.username))
+  filter = find_user_from_name(body.username) if body.username is not None else find_user_from_email(body.email)
+  user = db['users'].find_one(filter)
+  if user is None:
+    response.status_code = 401
+    return {"error": "Invalid username or password"}
   pass_hash = base64.encodebytes(hashlib.scrypt(
     bytes(body.password, "utf-8"),
-    salt=bytes(server_secret + body.username, "utf-8"),
+    salt=bytes(server_secret + user["username"], "utf-8"),
     n=8192, r=24, p=1,dklen=64
   )).decode("utf-8")
-  if user is None or not secrets.compare_digest(pass_hash, user["password"]):
+  if not secrets.compare_digest(pass_hash, user["password"]):
     response.status_code = 401
     return {"error": "Invalid username or password"}
   if not user["verified"]:
     response.status_code = 401
     return {"error": "Email verification needed"}
   
-  refresh_token, refresh_timestamp = await generate_token(body.username, "refresh")
-  access_token, access_timestamp = await generate_token(body.username, "access")
+  refresh_token, refresh_timestamp = await generate_token(user["username"], "refresh")
+  access_token, access_timestamp = await generate_token(user["username"], "access")
   db['users'].update_one(
-    find_user_from_name(body.username),
+    find_user_from_name(user["username"]),
     {
       "$set": { "last_login": timestamp },
       "$push": { "refresh_tokens": {

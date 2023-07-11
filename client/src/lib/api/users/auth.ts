@@ -134,8 +134,8 @@ export class MfAuthAPI {
     }
   }
 
-  async login(username: string = '', password = ''): Promise<MFLoginResponse> {
-    if (!(username && password)) return {
+  async login(username: string = '', email: string = '', password = ''): Promise<MFLoginResponse> {
+    if (!(username || email) || !password) return {
       success: false,
       error: 'body'
     }
@@ -146,7 +146,7 @@ export class MfAuthAPI {
       endpoint: '/auth/login',
       method: 'POST',
       body: {
-        username: username,
+        ...(username ? {username: username} : {email: email}),
         password: password
       },
       useAuthHeader: false,

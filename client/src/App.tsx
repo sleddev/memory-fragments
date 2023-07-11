@@ -1,5 +1,7 @@
 import { onMount, type Component } from 'solid-js';
-import { useMF } from './components/MFContext';
+import { Router, Routes, Route } from '@solidjs/router';
+import { useMF } from './contexts/MFContext';
+import { AuthApp } from './apps/auth/AuthApp';
 
 
 export const App: Component = () => {
@@ -10,6 +12,20 @@ export const App: Component = () => {
   })
 
   return (<>
-    <div id='app'>woof</div>
+    <Router>
+       <Routes>
+          <Route path='/auth/*' component={AuthApp} />
+          <Route path='*' component={Frame} />
+       </Routes>
+    </Router>
   </>);
+};
+
+const Frame: Component<{}> = (props) => {
+  
+  return <>
+    <div id="sidebar">
+      woof
+    </div>
+  </>;
 };
