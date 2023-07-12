@@ -1,4 +1,4 @@
-import { Component, Show, createSignal } from "solid-js";
+import { Component, Show, createSignal, onMount } from "solid-js";
 import { A } from '@solidjs/router';
 import { MFLogo } from "../components/MFLogo";
 import { useMF } from "../../../contexts/MFContext";
@@ -9,10 +9,18 @@ export const LoginPage: Component<{}> = (props) => {
   const mf = useMF()
   const navigate = useNavigate();
 
-  const [username, setUsername] = createSignal('')
-  const [password, setPassword] = createSignal('')
+  let local = JSON.parse(localStorage.getItem('temp_login') ?? '{}')
+
+  const [username, setUsername] = createSignal(local['username'] ?? '')
+  const [password, setPassword] = createSignal(local['password'] ?? '')
   const [error, setError] = createSignal('')
   const [loading, setLoading] = createSignal(false)
+
+  onMount(() => {
+    if (!local) return;
+    localStorage.removeItem('temp_login')
+    handleSubmit(new MouseEvent('click'))
+  })
 
   async function handleSubmit(e: MouseEvent) {
     let usernameInput = document.querySelector('#username') as HTMLInputElement

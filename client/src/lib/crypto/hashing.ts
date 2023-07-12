@@ -34,27 +34,30 @@ function bytesToBigInt(bytes: Uint8Array) {
   return value;
 }
 
-export async function sha256hash(data: string) {
+export async function sha256hash(data: string, out: "bytes" | "hex" | "b64" = "bytes") {
   const utf8 = new TextEncoder().encode(data);
   const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((bytes) => bytes.toString(16).padStart(2, '0'))
-    .join('');
-  return hashHex;
+  if (out == "hex") return bytesToHex(new Uint8Array(hashBuffer));
+  if (out == "b64") return bytesToB64(new Uint8Array(hashBuffer));
+  return new Uint8Array(hashBuffer);
 }
-export async function sha512hash(data: string) {
+export async function sha384hash(data: string, out: "bytes" | "hex" | "b64" = "bytes") {
+  const utf8 = new TextEncoder().encode(data);
+  const hashBuffer = await crypto.subtle.digest('SHA-384', utf8);
+  if (out == "hex") return bytesToHex(new Uint8Array(hashBuffer));
+  if (out == "b64") return bytesToB64(new Uint8Array(hashBuffer));
+  return new Uint8Array(hashBuffer);
+}
+export async function sha512hash(data: string, out: "bytes" | "hex" | "b64" = "bytes") {
   const utf8 = new TextEncoder().encode(data);
   const hashBuffer = await crypto.subtle.digest('SHA-512', utf8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((bytes) => bytes.toString(16).padStart(2, '0'))
-    .join('');
-  return hashHex;
+  if (out == "hex") return bytesToHex(new Uint8Array(hashBuffer));
+  if (out == "b64") return bytesToB64(new Uint8Array(hashBuffer));
+  return new Uint8Array(hashBuffer);
 }
 
 export async function deriveKey(pass: string, salt: string, out: "bytes" | "hex" | "b64" = "bytes") {
-  let dk = await pbkdf2Hmac(pass, salt, 2048, 32, "SHA-256");
+  let dk = await pbkdf2Hmac(pass, salt, 950777, 32, "SHA-256");
   if (out == "hex") return bytesToHex(new Uint8Array(dk));
   if (out == "b64") return bytesToB64(new Uint8Array(dk));
   return new Uint8Array(dk);

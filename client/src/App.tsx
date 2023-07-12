@@ -1,5 +1,5 @@
 import { onMount, type Component } from 'solid-js';
-import { Router, Routes, Route } from '@solidjs/router';
+import { Router, Routes, Route, useNavigate } from '@solidjs/router';
 import { useMF } from './contexts/MFContext';
 import { AuthApp } from './apps/auth/AuthApp';
 
@@ -22,10 +22,12 @@ export const App: Component = () => {
 };
 
 const Frame: Component<{}> = (props) => {
-  
+  const navigate = useNavigate()
+  if (!useMF().apiKey()) navigate('/auth/login')
+
   return <>
     <div id="sidebar">
-      woof
+      <span class='p-1 text-white'>woof</span>
     </div>
   </>;
 };

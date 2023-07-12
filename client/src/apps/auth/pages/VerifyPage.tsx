@@ -123,15 +123,18 @@ export const VerifyPage: Component<{}> = (props) => {
           <Show when={verified()}>
             <div class="h-1"></div>
             <span class="block text-[13px] text-green-400 text-center">Successfully verified, you can now log in!</span>
-            <div class="h-1"></div>
+            <div class="h-4"></div>
+            <A href="../login" class="flex justify-center items-center w-full h-9 rounded-xl bg-white hover:bg-[#ebebeb] text-black font-medium text-[15px] leading-5">Log in</A>
           </Show>
-          <div class="h-3"></div>
-          <button type="submit" onClick={handleVerify} class="block w-full h-9 rounded-xl bg-white hover:bg-[#ebebeb] text-black font-medium text-[15px] leading-5">Verify email</button>
-          <div class="h-2"></div>
-          <span class="text-[#ffffff8C] text-[15px] leading-5">
-            Already verified? 
-            <A href="../login" class="text-blue-400 text-[15px] leading-5">Log in</A>
-          </span>
+          <Show when={!verified()}>
+            <div class="h-3"></div>
+            <button type="submit" onClick={handleVerify} class="block w-full h-9 rounded-xl bg-white hover:bg-[#ebebeb] text-black font-medium text-[15px] leading-5">Verify email</button>
+            <div class="h-2"></div>
+            <span class="text-[#ffffff8C] text-[15px] leading-5">
+              Already verified? 
+              <A href="../login" class="text-blue-400 text-[15px] leading-5">Log in</A>
+            </span>
+          </Show>
         </form>
       </Show>
     </Show>

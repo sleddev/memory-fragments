@@ -1,11 +1,11 @@
 ﻿import { Accessor, Setter, batch } from "solid-js";
 import { MfAPI } from "../mf_api";
 import { useAuth } from "../../../hooks/useAuth";
-import { bytesToB64, deriveKey, hexToBytes, sha256hash, sha512hash } from "../../crypto/hashing";
+import { bytesToB64, deriveKey, hexToBytes, sha256hash, sha384hash, sha512hash } from "../../crypto/hashing";
 
 //TODO: Handle unknown errors
 
-interface MFIsAvailableResponse {
+export interface MFIsAvailableResponse {
   success: boolean;
   data?: {
     available: boolean;
@@ -13,23 +13,23 @@ interface MFIsAvailableResponse {
   }
   error?: 'body' | 'unknown';
 }
-interface MFSendEmailResponse {
+export interface MFSendEmailResponse {
   success: boolean;
   error?: 'body' | 'credentials' | 'already-verified' | 'wait' | 'send-failed' | 'unknown';
 }
-interface MFVerifyEmailResponse {
+export interface MFVerifyEmailResponse {
   success: boolean;
   error?: 'body' | 'attempts' | 'credentials' | 'unknown';
 }
-interface MFRegisterResponse {
+export interface MFRegisterResponse {
   success: boolean;
   error?: 'body' | 'username' | 'email-taken' | 'invalid-email' | 'unknown';
 }
-interface MFLoginResponse {
+export interface MFLoginResponse {
   success: boolean;
   error?: 'body' | 'credentials' | 'verify' | 'unknown';
 }
-interface MFRefreshResponse {
+export interface MFRefreshResponse {
   success: boolean;
   error?: 'body' | 'credentials' | 'unknown';
 }
@@ -100,7 +100,7 @@ export class MfAuthAPI {
       error: 'body'
     }
 
-    password = await sha512hash(password);
+    password = await sha512hash(password, 'hex') as string;
 
     let res = await this.mf.makeRequest({
       endpoint: '/auth/register',
@@ -140,7 +140,7 @@ export class MfAuthAPI {
       error: 'body'
     }
 
-    password = await sha512hash(password);
+    password = await sha512hash(password, 'hex') as string;
 
     let res = await this.mf.makeRequest({
       endpoint: '/auth/login',
@@ -169,8 +169,8 @@ export class MfAuthAPI {
         expiresIn: Number.parseInt(res.body['expires_in'])
       }
 
-      let sha = await sha256hash(password);
-      let dk = await deriveKey(sha, username, "b64") as string;
+      let passhash = await sha256hash(password, 'b64') as string;
+      let dk = await deriveKey(passhash, username, 'b64') as string;
 
       batch(() => {
         this.setExpiresAt(data.createdAt + data.expiresIn)
@@ -299,8 +299,7 @@ export class MfAuthAPI {
       error: 'body'
     }
 
-    let sha = await sha256hash(email + code)
-    let b64code = bytesToB64(new Uint8Array(hexToBytes(sha)))
+    let b64code = await sha256hash(email + code, 'b64') as string
 
     let res = await this.mf.makeRequest({
       endpoint: '/auth/verify_email',

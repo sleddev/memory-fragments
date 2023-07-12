@@ -15,7 +15,7 @@ export const AuthApp: Component<{}> = (props) => {
     <div class="flex flex-col justify-center m-auto w-[25rem] h-full">
       <Routes>
         <Route path='/login' component={LoginPage} />
-        <Route path='/register' component={RegisterPage} />
+        <Route path='/register/*' component={RegisterPage} />
         <Route path='/recovery' component={RecoveryPage} />
         <Route path='/verify' component={VerifyPage} />
       </Routes>
