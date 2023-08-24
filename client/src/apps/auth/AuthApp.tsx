@@ -9,7 +9,7 @@ import { useMF } from "../../contexts/MFContext";
 export const AuthApp: Component<{}> = (props) => {
   const mf = useMF()
   const navigate = useNavigate()
-  if (mf.apiKey()) navigate('/')
+  if (mf.apiKey()) navigate('/dash/')
   
   return ( 
     <div class="flex flex-col justify-center m-auto w-[25rem] h-full">

@@ -25,6 +25,7 @@ server_secret = env["SERVER_SECRET"]
 mongo_uri = env["MONGO_URI"]
 
 mongo = MongoClient(mongo_uri, server_api=ServerApi('1'))
+# TODO: multiple dbs for apps, DB_SUFFIX instead of DB_NAME
 db = mongo[env["DATABASE_NAME"]]
 email_sender = EmailSender(env["GMAIL_ADDR"], env["GMAIL_PASS"])
 
@@ -48,7 +49,6 @@ open_endpoints = [
 
 @app.middleware("http")
 async def token_middleware(request: Request, call_next):
-  print(request['path'])
   if request['path'].lower().removesuffix('/') in open_endpoints:
     return await call_next(request)
   token_status = await verify_token((request.headers.get("Authorization") or "").split(' ')[-1])
@@ -116,7 +116,6 @@ async def verify_email(response: Response, body: VerifyEmailBody = None, usernam
   doc = db['email-verification'].find_one(find_email_verification(body.username), {"_id": 0})
   email, digits = (doc["email"], str(doc["code"])) if doc is not None else ("asd", "fgh")
   expected = await get_email_code(email, digits)
-  print(expected)
   if not secrets.compare_digest(expected, bytes(body.code, "utf-8")) or doc is None or timestamp >= doc["expires_at"]:
     if doc is not None:
       db['email-verification'].update_one(

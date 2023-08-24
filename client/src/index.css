@@ -5,6 +5,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, 'Roboto', 'Helvetica', sans-serif;

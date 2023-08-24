@@ -191,7 +191,7 @@ const EmailPhase: Component<{
     <div class="h-8"></div>
     <Show when={!props.loading()} fallback={<Spinner class="h-12" />}>
     <form>
-      <input id="email" value={props.email()} onInput={e => props.setEmail(e.target.value)} type="email" placeholder="Choose a username" class="w-full h-9 rounded-xl text-white text-[15px] bg-[#232323] focus:bg-[#2c2c2c] border-none focus:ring-0 placeholder:text-[#606060] leading-5 py-1" classList={{'bg-[#40aaff40] focus:bg-[#40aaff40]': error() != ''}} />
+      <input id="email" value={props.email()} onInput={e => props.setEmail(e.target.value)} type="email" placeholder="Your email address" class="w-full h-9 rounded-xl text-white text-[15px] bg-[#232323] focus:bg-[#2c2c2c] border-none focus:ring-0 placeholder:text-[#606060] leading-5 py-1" classList={{'bg-[#40aaff40] focus:bg-[#40aaff40]': error() != ''}} />
       <Show when={error()}>
         <div class="h-1"></div>
         <span class="block text-[13px] text-blue-400 text-center">{error()}</span>
