@@ -25,8 +25,9 @@ server_secret = env["SERVER_SECRET"]
 mongo_uri = env["MONGO_URI"]
 
 mongo = MongoClient(mongo_uri, server_api=ServerApi('1'))
-# TODO: multiple dbs for apps, DB_SUFFIX instead of DB_NAME
-db = mongo[env["DATABASE_NAME"]]
+db_suffix = "-" + env["DB_SUFFIX"]
+auth_db = mongo["auth" + db_suffix]
+notes_db = mongo["notes" + db_suffix]
 email_sender = EmailSender(env["GMAIL_ADDR"], env["GMAIL_PASS"])
 
 access_token_expiry = 3_600_000 # one hour
@@ -85,13 +86,13 @@ async def is_available(response: Response, username: str = None, email: str = No
     response.status_code = 400
     return {"message": "Provide either email or username, not both"}
   if username is not None:
-    exists = db['users'].find_one(find_user_from_name(username)) is not None
+    exists = auth_db['users'].find_one(find_user_from_name(username)) is not None
     if exists:
       response.status_code = 409
       return {"message": "Username taken"}
     return {"message": "Username available"}
   if email is not None:
-    exists = db['users'].find_one(find_user_from_email(email)) is not None
+    exists = auth_db['users'].find_one(find_user_from_email(email)) is not None
     if exists:
       response.status_code = 409
       return {"message": "Email taken"}
@@ -113,12 +114,12 @@ async def verify_email(response: Response, body: VerifyEmailBody = None, usernam
   if body is None:
     response.status_code = 400
     return {"error": "Invalid request body"}
-  doc = db['email-verification'].find_one(find_email_verification(body.username), {"_id": 0})
+  doc = auth_db['email-verification'].find_one(find_email_verification(body.username), {"_id": 0})
   email, digits = (doc["email"], str(doc["code"])) if doc is not None else ("asd", "fgh")
   expected = await get_email_code(email, digits)
   if not secrets.compare_digest(expected, bytes(body.code, "utf-8")) or doc is None or timestamp >= doc["expires_at"]:
     if doc is not None:
-      db['email-verification'].update_one(
+      auth_db['email-verification'].update_one(
         find_email_verification(body.username),
         {
           "$inc": {"attempts": 1}
@@ -130,11 +131,11 @@ async def verify_email(response: Response, body: VerifyEmailBody = None, usernam
     response.status_code = 401
     return {"error": "Invalid username or code"}
   
-  db['users'].update_one(
+  auth_db['users'].update_one(
     find_user_from_name(body.username),
     { "$set": {"verified": True} }
   )
-  db['email-verification'].delete_one(find_user_from_name(body.username))
+  auth_db['email-verification'].delete_one(find_user_from_name(body.username))
   return {"message": "Verified successfully!"}
   
 class SendEmailBody(BaseModel):
@@ -146,7 +147,7 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
   if body is None:
     response.status_code = 400
     return {"error": "Invalid request body"}
-  user = db['users'].find_one(find_user_from_name(body.username))
+  user = auth_db['users'].find_one(find_user_from_name(body.username))
   if user is None or user["email"] != body.email.lower():
     response.status_code = 401
     return {"error": "Invalid username or email."}
@@ -154,10 +155,10 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
     response.status_code = 409
     return {"error": "Email already verified"}
   
-  doc = db['email-verification'].find_one(find_email_verification(body.username), {"_id": 0})
+  doc = auth_db['email-verification'].find_one(find_email_verification(body.username), {"_id": 0})
   digits = secrets.randbelow(900_000) + 100_000
   if doc is None:
-    db['email-verification'].insert_one({
+    auth_db['email-verification'].insert_one({
       "username": user["username"],
       "email": user["email"],
       "attempts": 0,
@@ -169,7 +170,7 @@ async def send_verification_email(response: Response, body: SendEmailBody = None
     if doc["created_at"] > timestamp - 60_000:
       response.status_code = 420
       return {"error": "Wait one minute between sending emails."}
-    db['email-verification'].update_one(
+    auth_db['email-verification'].update_one(
       find_email_verification(body.username),
       {"$set": {
         "attempts": 0,
@@ -203,17 +204,17 @@ async def register(response: Response, body: RegisterBody = None):
     or body.password is None or body.email is None:
     response.status_code = 400
     return {"error": "Invalid request body"}
-  if db['users'].find_one(find_user_from_name(body.username)) is not None:
+  if auth_db['users'].find_one(find_user_from_name(body.username)) is not None:
     response.status_code = 409
     return {"error": "Username taken"}
-  if db['users'].find_one(find_user_from_email(body.email)) is not None:
+  if auth_db['users'].find_one(find_user_from_email(body.email)) is not None:
     response.status_code = 409
     return {"error": "Email taken"}
   if re.fullmatch(r"[^@]+@[^@]+\.[^@]+", body.email) is None:
     response.status_code = 400
     return {"error": "Invalid email address"}
   
-  db['users'].insert_one({
+  auth_db['users'].insert_one({
     "username": body.username,
     "display_name": body.display_name,
     "password": base64.encodebytes(hashlib.scrypt(
@@ -247,7 +248,7 @@ async def login(response: Response, body: LoginBody = None):
     response.status_code = 400
     return {"error": "Invalid request body"}
   filter = find_user_from_name(body.username) if body.username is not None else find_user_from_email(body.email)
-  user = db['users'].find_one(filter)
+  user = auth_db['users'].find_one(filter)
   if user is None:
     response.status_code = 401
     return {"error": "Invalid username or password"}
@@ -265,7 +266,7 @@ async def login(response: Response, body: LoginBody = None):
   
   refresh_token, refresh_timestamp = await generate_token(user["username"], "refresh")
   access_token, access_timestamp = await generate_token(user["username"], "access")
-  db['users'].update_one(
+  auth_db['users'].update_one(
     find_user_from_name(user["username"]),
     {
       "$set": { "last_login": timestamp },
@@ -295,12 +296,12 @@ async def refresh(response: Response, body: RefreshBody = None):
   if body is None or body.refresh_token is None:
     response.status_code = 400
     return {"error": "Invalid request body"}
-  user = db['users'].find_one(find_user_from_refresh_token(body.refresh_token))
+  user = auth_db['users'].find_one(find_user_from_refresh_token(body.refresh_token))
   if user is None:
     response.status_code = 401
     return {"error": "Invalid refresh token"}
   access_token, access_timestamp = await generate_token(user["username"])
-  db['users'].update_one(
+  auth_db['users'].update_one(
     {
       "username": user["username"],
       "refresh_tokens.token": body.refresh_token
@@ -341,11 +342,11 @@ async def verify_token_signature(token: str, username: str, creation_time: int, 
   return secrets.compare_digest(signature, expected_signature)
 
 async def verify_token(token: str, token_type: Literal["access", "refresh"] = "access")-> Literal["valid", "notfound", "invalid", "expired"]:
-  if token_type == "access": user = db['users'].find_one(find_user_from_token(token))
-  else: user = db['users'].find_one(find_user_from_refresh_token(token))
+  if token_type == "access": user = auth_db['users'].find_one(find_user_from_token(token))
+  else: user = auth_db['users'].find_one(find_user_from_refresh_token(token))
   if user is None: return "invalid"
-  token_obj = db['users'].aggregate(aggregate_access_token(token)).next() if token_type == "access" \
-    else db['users'].aggregate(aggregate_refresh_token(token)).next()
+  token_obj = auth_db['users'].aggregate(aggregate_access_token(token)).next() if token_type == "access" \
+    else auth_db['users'].aggregate(aggregate_refresh_token(token)).next()
   current_time: int = math.floor(datetime.now().timestamp() * 1000)
   if current_time > token_obj['expires_at']: return "expired"
   
@@ -363,7 +364,7 @@ async def get_email_code(email: str, digits: str):
 
 @app.get('/me')
 async def me(request: Request):
-  return db['users'].find_one(
+  return auth_db['users'].find_one(
     find_user_from_token(request.headers.get('Authorization').split(' ')[-1]),
     {
       '_id': 0,
