@@ -6,3 +6,4 @@ pydantic~=1.10.8
 starlette~=0.27.0
 requests~=2.32.0
 dnspython>=2.6.0rc1 # not directly required, pinned by Snyk to avoid a vulnerability
+anyio>=4.4.0 # not directly required, pinned by Snyk to avoid a vulnerability
